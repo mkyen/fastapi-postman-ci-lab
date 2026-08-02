@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.benchmarks/
+
+# Virtual environments
+venv/
+venv2/
+.venv/
+
+# Local files
+lab.db
+.env
+.DS_Store
+uvicorn.log

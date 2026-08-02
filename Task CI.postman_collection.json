@@ -1,0 +1,549 @@
+{
+  "info": {
+    "_postman_id": "05c6cd0b-f011-486e-a6db-446274fff178",
+    "name": "Task CI",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "3339562",
+    "_collection_link": "https://go.postman.co/collection/3339562-05c6cd0b-f011-486e-a6db-446274fff178?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const body = pm.response.json();",
+              "",
+              "pm.test(\"Health returns 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API status is ok\", function () {",
+              "    pm.expect(body.status).to.eql(\"ok\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "register",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse the JSON response body",
+              "const body = pm.response.json();",
+              "",
+              "// Verify that the user was successfully created",
+              "pm.test(\"Register should return 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "// Verify that the response contains a numeric user ID",
+              "pm.test(\"User ID should exist\", function () {",
+              "    pm.expect(body.id).to.be.a(\"number\");",
+              "});",
+              "",
+              "// Verify that the registered email matches the generated email",
+              "pm.test(\"Registered email should match the test email\", function () {",
+              "    pm.expect(body.email).to.eql(",
+              "        pm.environment.get(\"email\")",
+              "    );",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// Generate a unique value for each collection run",
+              "const uniqueId = `${Date.now()}_${Math.floor(Math.random() * 10000)}`;",
+              "",
+              "// Create a unique email address for the new test user",
+              "const generatedEmail = `ci_user_${uniqueId}@lab.com`;",
+              "",
+              "// Store the generated credentials in the active environment",
+              "pm.environment.set(\"email\", generatedEmail);",
+              "pm.environment.set(\"password\", \"CorrectPassword123!\");",
+              "",
+              "// Remove values left from a previous collection run",
+              "pm.environment.unset(\"access_token\");",
+              "pm.environment.unset(\"task_id\");",
+              "",
+              "// Print the generated email in the Postman Console",
+              "console.log(\"Generated test email:\", generatedEmail);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse the JSON response body",
+              "const body = pm.response.json();",
+              "",
+              "// Verify that login was successful",
+              "pm.test(\"Login should return 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// Verify that the response contains an access token",
+              "pm.test(\"Access token should exist\", function () {",
+              "    pm.expect(body.access_token).to.be.a(\"string\");",
+              "    pm.expect(body.access_token).not.to.be.empty;",
+              "});",
+              "",
+              "// Save the token for protected requests",
+              "if (pm.response.code === 200 && body.access_token) {",
+              "    pm.environment.set(",
+              "        \"access_token\",",
+              "        body.access_token",
+              "    );",
+              "",
+              "    console.log(\"Access token saved successfully\");",
+              "} else {",
+              "    // Remove any token left from a previous failed run",
+              "    pm.environment.unset(\"access_token\");",
+              "",
+              "    console.log(\"Access token was not saved because login failed\");",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get_current_user",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse the JSON response body",
+              "const user = pm.response.json();",
+              "",
+              "// Read the email generated during the registration request",
+              "const expectedEmail = pm.environment.get(\"email\");",
+              "",
+              "// Print values for debugging",
+              "console.log(\"Expected email:\", expectedEmail);",
+              "console.log(\"Actual email:\", user.email);",
+              "",
+              "// Verify that the protected endpoint returns HTTP 200",
+              "pm.test(\"Current user endpoint should return 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// Verify that the returned user matches the logged-in user",
+              "pm.test(\"User email should match the logged-in user\", function () {",
+              "    pm.expect(user.email).to.eql(expectedEmail);",
+              "});",
+              "",
+              "// Verify that the response contains a numeric user ID",
+              "pm.test(\"User ID should exist\", function () {",
+              "    pm.expect(user.id).to.be.a(\"number\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/users/me",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "users",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Task",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse the JSON response body",
+              "const task = pm.response.json();",
+              "",
+              "// Read the email of the authenticated test user",
+              "const expectedOwner = pm.environment.get(\"email\");",
+              "",
+              "// Verify that the task was successfully created",
+              "pm.test(\"Task creation should return 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "// Verify that the response contains a numeric task ID",
+              "pm.test(\"Task ID should exist\", function () {",
+              "    pm.expect(task.id).to.be.a(\"number\");",
+              "});",
+              "",
+              "// Verify that the task title matches the request body",
+              "pm.test(\"Task title should be correct\", function () {",
+              "    pm.expect(task.title).to.eql(",
+              "        \"Postman Automated Task\"",
+              "    );",
+              "});",
+              "",
+              "// Verify that the task belongs to the authenticated user",
+              "pm.test(\"Task owner should be correct\", function () {",
+              "    pm.expect(task.owner).to.eql(expectedOwner);",
+              "});",
+              "",
+              "// Verify that the default task status is false",
+              "pm.test(\"Task completion status should be false\", function () {",
+              "    pm.expect(task.done).to.eql(false);",
+              "});",
+              "",
+              "// Save the created task ID for later requests",
+              "if (task.id) {",
+              "    pm.environment.set(\"task_id\", task.id);",
+              "",
+              "    console.log(\"Created task ID:\", task.id);",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Postman Automated Task\",\n  \"done\": false\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/tasks",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "tasks"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Tasks",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse the JSON response body",
+              "const tasks = pm.response.json();",
+              "",
+              "// Read values created during previous requests",
+              "const expectedOwner = pm.environment.get(\"email\");",
+              "const createdTaskId = Number(",
+              "    pm.environment.get(\"task_id\")",
+              ");",
+              "",
+              "// Print response information for debugging",
+              "console.log(\"HTTP status:\", pm.response.code);",
+              "console.log(\"Number of tasks:\", tasks.length);",
+              "console.log(\"All tasks:\", tasks);",
+              "console.log(",
+              "    \"Task IDs:\",",
+              "    tasks.map(function (task) {",
+              "        return task.id;",
+              "    })",
+              ");",
+              "",
+              "// Verify that the endpoint returns HTTP 200",
+              "pm.test(\"Task list should return 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// Verify that the response is an array",
+              "pm.test(\"Response should be an array\", function () {",
+              "    pm.expect(tasks).to.be.an(\"array\");",
+              "});",
+              "",
+              "// Verify that the task list is not empty",
+              "pm.test(\"Task list should not be empty\", function () {",
+              "    pm.expect(tasks.length).to.be.above(0);",
+              "});",
+              "",
+              "// Verify that every task belongs to the authenticated user",
+              "pm.test(\"All tasks should belong to the authenticated user\", function () {",
+              "    const allTasksBelongToUser = tasks.every(",
+              "        function (task) {",
+              "            return task.owner === expectedOwner;",
+              "        }",
+              "    );",
+              "",
+              "    pm.expect(allTasksBelongToUser).to.eql(true);",
+              "});",
+              "",
+              "// Verify that the task created earlier exists in the list",
+              "pm.test(\"Created task should exist in the task list\", function () {",
+              "    const createdTaskExists = tasks.some(",
+              "        function (task) {",
+              "            return task.id === createdTaskId;",
+              "        }",
+              "    );",
+              "",
+              "    pm.expect(createdTaskExists).to.eql(true);",
+              "});",
+              "",
+              "// Verify that every task contains the required fields",
+              "pm.test(\"Every task should contain the required fields\", function () {",
+              "    tasks.forEach(function (task) {",
+              "        pm.expect(task).to.have.property(\"id\");",
+              "        pm.expect(task).to.have.property(\"owner\");",
+              "        pm.expect(task).to.have.property(\"title\");",
+              "        pm.expect(task).to.have.property(\"done\");",
+              "    });",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "packages": {},
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/tasks",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "tasks"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
