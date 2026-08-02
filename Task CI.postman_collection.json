@@ -324,6 +324,237 @@
       "response": []
     },
     {
+      "name": "Get_current_user - Missing Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse the error response",
+              "const body = pm.response.json();",
+              "",
+              "// Verify that requests without a token are rejected",
+              "pm.test(\"Missing token should return 401 Unauthorized\", function () {",
+              "    pm.response.to.have.status(401);",
+              "});",
+              "",
+              "// Verify that the API returns an error message",
+              "pm.test(\"Missing token response should contain detail\", function () {",
+              "    pm.expect(body).to.have.property(\"detail\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/users/me",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "users",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get_current_user - Invalid Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse the error response",
+              "const body = pm.response.json();",
+              "",
+              "// Verify that malformed tokens are rejected",
+              "pm.test(\"Invalid token should return 401 Unauthorized\", function () {",
+              "    pm.response.to.have.status(401);",
+              "});",
+              "",
+              "// Verify that the API returns an error message",
+              "pm.test(\"Invalid token response should contain detail\", function () {",
+              "    pm.expect(body).to.have.property(\"detail\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "invalid-token-123",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/users/me",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "users",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get_current_user - Tampered Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse the error response",
+              "const body = pm.response.json();",
+              "",
+              "// Verify that tokens with invalid signatures are rejected",
+              "pm.test(\"Tampered token should return 401 Unauthorized\", function () {",
+              "    pm.response.to.have.status(401);",
+              "});",
+              "",
+              "// Verify that the API returns an error message",
+              "pm.test(\"Tampered token response should contain detail\", function () {",
+              "    pm.expect(body).to.have.property(\"detail\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const validToken = pm.environment.get(\"access_token\");",
+              "",
+              "if (!validToken) {",
+              "    throw new Error(\"A valid access token is required\");",
+              "}",
+              "",
+              "const lastCharacter = validToken.slice(-1);",
+              "const replacementCharacter =",
+              "    lastCharacter === \"a\" ? \"b\" : \"a\";",
+              "",
+              "const tamperedToken =",
+              "    validToken.slice(0, -1) + replacementCharacter;",
+              "",
+              "pm.environment.set(\"tampered_token\", tamperedToken);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{tampered_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/users/me",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "users",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
       "name": "Create Task",
       "event": [
         {
@@ -544,6 +775,12 @@
         }
       },
       "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "auth_secret_0ips",
+      "secret": true
     }
   ]
 }
