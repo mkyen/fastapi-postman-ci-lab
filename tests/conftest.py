@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from postman_lab.main import Base, app, get_db, _fake_tasks_db
+from main import Base, app, get_db, _fake_tasks_db
 
 
 test_engine = create_engine(
