@@ -96,7 +96,7 @@ flowchart TD
 
 ---
 
-## ❤️ Health Check
+## ✅ Health Check
 
 The CI pipeline waits for the FastAPI service to become ready before Newman starts.
 
@@ -190,21 +190,23 @@ Expected result: 401 Unauthorized
 
 ## 🧪 Pytest Coverage
 
-The current test suite validates:
 
-- successful login;
-- invalid login credentials;
-- protected access without a token;
-- protected access with an invalid token;
-- successful task creation;
-- task listing;
-- task creation without authentication.
-
-### Run Pytest
+The current Python test suite covers:
 
 ```bash
 pytest -v
 ```
+
+
+- ✅ successful login
+- ✅ invalid login credentials
+- ✅ protected endpoint without a token
+- ✅ protected endpoint with an invalid token
+- ✅ successful task creation
+- ✅ task listing
+- ✅ task creation without authentication
+
+
 
 ### Expected Result
 
@@ -520,26 +522,14 @@ This repository is a learning project. Before production use:
 
 ---
 
-## 🗺️ Roadmap
-
-- [ ] Docker image build
-- [ ] PostgreSQL integration
-- [ ] Code coverage reporting
-- [ ] Ruff or Flake8 linting
-- [ ] Dependency vulnerability scanning
-- [ ] OpenAPI contract testing
-- [ ] Branch protection
-- [ ] Continuous Deployment
 
 ---
 
-## 👤 Author
-
 <div align="center">
 
-**Kemal Yenigün**
 
-Cloud & DevOps Engineering Lab  
+
+
 API Automation • JWT Security • Continuous Integration
 
 </div>
