@@ -9,7 +9,7 @@ Run:
 
 Then open http://127.0.0.1:8000/docs to see all endpoints.
 """
-
+import os
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
@@ -21,7 +21,7 @@ from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
 # ── Config (normally in app/core/config.py, kept inline here on purpose) ──
-SECRET_KEY = "lab-secret-key-change-in-real-projects"
+SECRET_KEY = os.environ["SECRET_KEY"]
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
